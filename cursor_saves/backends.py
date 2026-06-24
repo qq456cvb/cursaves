@@ -19,7 +19,10 @@ from pathlib import Path
 from typing import Optional
 
 
-_CONFIG_PATH = Path.home() / ".config" / "cursaves" / "config.json"
+def _config_path() -> Path:
+    from .paths import get_config_dir
+
+    return get_config_dir() / "config.json"
 
 
 # ── Abstract base ────────────────────────────────────────────────────────
@@ -222,7 +225,7 @@ class S3Backend(SyncBackend):
 
     Requires ``boto3`` — install with ``pip install cursaves[s3]``.
 
-    Configuration (in ~/.config/cursaves/config.json)::
+    Configuration (in the platform config directory's config.json)::
 
         {
             "backend": "s3",
@@ -355,10 +358,11 @@ class S3Backend(SyncBackend):
 
 
 def load_config() -> dict:
-    """Load cursaves config from ~/.config/cursaves/config.json."""
-    if _CONFIG_PATH.exists():
+    """Load cursaves config from the platform config directory."""
+    config_path = _config_path()
+    if config_path.exists():
         try:
-            return json.loads(_CONFIG_PATH.read_text())
+            return json.loads(config_path.read_text())
         except (json.JSONDecodeError, OSError):
             pass
     return {}
@@ -366,8 +370,9 @@ def load_config() -> dict:
 
 def save_config(config: dict):
     """Persist cursaves config."""
-    _CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    _CONFIG_PATH.write_text(json.dumps(config, indent=2) + "\n")
+    config_path = _config_path()
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(json.dumps(config, indent=2) + "\n")
 
 
 def get_backend() -> SyncBackend:

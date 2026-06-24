@@ -778,7 +778,7 @@ def _push_ahead(sync_dir: Path, auto: bool = False, backend: Optional[SyncBacken
 
 def _get_sync_state_path() -> Path:
     """Path for local sync state (outside the git repo to survive git clean)."""
-    return Path.home() / ".config" / "cursaves" / "sync_state.json"
+    return paths.get_config_dir() / "sync_state.json"
 
 
 def _load_sync_state() -> dict:
